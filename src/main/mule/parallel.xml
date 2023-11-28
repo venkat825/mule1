@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="86598a98-083d-4467-8289-6745bbd7e3cc" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="parallelFlow" doc:id="35c1bc18-0e3e-40f1-aba2-387a4ecf08c4" >
+		<http:listener doc:name="Listener" doc:id="0d021ce6-c554-4023-837a-23415cb3aa4c" config-ref="HTTP_Listener_config" path="/parallel"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5bb84e0e-c4dc-462a-bce5-f0dc995fd548" message='"data received"----&gt;#[payload]'/>
+		<ee:transform doc:name="Transform Message" doc:id="bdb1a63d-3aad-498c-9c9b-6d8720ee4e56" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<parallel-foreach doc:name="Parallel For Each" doc:id="da4c6cc7-abb2-4dc0-befe-6d591950ccae" collection="#[payload.data]" maxConcurrency="2">
+			<logger level="INFO" doc:name="Logger" doc:id="34cd9a6c-c850-4f14-b1aa-eefc6b0e9d5e" message='"data printed"---&gt;#[payload]' />
+		</parallel-foreach>
+	</flow>
+</mule>
